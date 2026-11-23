@@ -1,0 +1,43 @@
+:root {
+  /* Original Architectural Palette — Parchment, Graphite Ink, Limestone & Signal Vermilion */
+  --paper: #f7f5f0;
+  --paper-elevated: #ffffff;
+  --stone: #ebe8e0;
+  --ink: #121316;
+  --ink-soft: #1b1d22;
+  --ink-panel: #16181d;
+
+  --vermilion: #e84c2b;
+  --vermilion-hover: #cf3d1e;
+  --vermilion-soft: rgba(232, 76, 43, 0.11);
+
+  /* Syntax Highlighting (Restrained Editorial Dark Theme) */
+  --syn-keyword: #f27a54;
+  --syn-string: #88c999;
+  --syn-number: #7aa7f0;
+  --syn-comment: #6e7585;
+
+  /* Ink Scales */
+  --text-dark: #141519;
+  --text-dark-muted: #50545e;
+  --text-dark-faint: #7b808c;
+  --rule-light: rgba(20, 21, 25, 0.12);
+  --rule-light-strong: rgba(20, 21, 25, 0.28);
+
+  --text-light: #f4f2ec;
+  --text-light-muted: rgba(244, 242, 236, 0.68);
+  --text-light-faint: rgba(244, 242, 236, 0.44);
+  --rule-dark: rgba(244, 242, 236, 0.12);
+  --rule-dark-strong: rgba(244, 242, 236, 0.26);
+
+  /* Typography */
+  --font-display: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Newsreader', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* Layout & Motion */
+  --wrap-max: 1280px;
+  --nav-h: 68px;
+  --ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
+}
