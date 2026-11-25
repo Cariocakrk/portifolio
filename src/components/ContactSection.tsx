@@ -47,17 +47,30 @@ export function ContactSection() {
 
           <div className="contact-right">
             <div className="contact-rows">
-              <button
-                type="button"
-                className="contact-row"
-                onClick={() => handleCopy('email', PROFILE_CONFIG.contact.email)}
-              >
-                <span className="contact-row__label">{t.contact.emailLabel}</span>
-                <strong className="contact-row__value">{PROFILE_CONFIG.contact.email}</strong>
-                <span className="contact-row__action">
-                  {copiedField === 'email' ? `${t.contact.copiedLabel} ✓` : `${t.contact.copyLabel} ↗`}
-                </span>
-              </button>
+              <div className="contact-row contact-row--split">
+                <a
+                  href={`mailto:${PROFILE_CONFIG.contact.email}`}
+                  className="contact-row__main"
+                >
+                  <span className="contact-row__label">{t.contact.emailLabel}</span>
+                  <strong className="contact-row__value">{PROFILE_CONFIG.contact.email}</strong>
+                </a>
+                <div className="contact-row__actions">
+                  <a
+                    href={`mailto:${PROFILE_CONFIG.contact.email}`}
+                    className="contact-row__pill"
+                  >
+                    Email ↗
+                  </a>
+                  <button
+                    type="button"
+                    className="contact-row__action"
+                    onClick={() => handleCopy('email', PROFILE_CONFIG.contact.email)}
+                  >
+                    {copiedField === 'email' ? `${t.contact.copiedLabel} ✓` : `${t.contact.copyLabel}`}
+                  </button>
+                </div>
+              </div>
 
               <button
                 type="button"
@@ -75,7 +88,6 @@ export function ContactSection() {
             <div className="contact-arch-card">
               <span className="mono-meta">{t.contact.architectureSummaryLabel}</span>
               <p>{t.contact.architectureSummary}</p>
-              <span className="contact-config-note">{t.contact.configNote}</span>
             </div>
           </div>
         </div>

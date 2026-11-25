@@ -535,8 +535,8 @@ export function InterfaceStudio({ mode, onModeChange }: InterfaceStudioProps) {
     const syncSize = () => {
       const rect = stage.getBoundingClientRect();
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const w = Math.max(Math.floor(rect.width), 320);
-      const h = Math.max(Math.floor(rect.height), 380);
+      const w = Math.max(Math.floor(rect.width), 280);
+      const h = Math.max(Math.floor(rect.height), 260);
       canvas.width = w * dpr;
       canvas.height = h * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -1296,6 +1296,41 @@ export function InterfaceStudio({ mode, onModeChange }: InterfaceStudioProps) {
       return;
     }
 
+    // On touch devices, auto-lock nearest alive node so tapping is rewarding
+    if (e.pointerType === 'touch') {
+      const alive = simRef.current.nodes.filter((n) => n.respawnTimer <= 0);
+      let nearest: SpatialNode | null = null;
+      let best = 110;
+      for (const n of alive) {
+        const d = Math.hypot(n.x - simRef.current.pointerX, n.y - simRef.current.pointerY);
+        if (d < best) {
+          best = d;
+          nearest = n;
+        }
+      }
+      simRef.current.lockedNodeId = nearest?.id ?? null;
+    }
+
+    executeProtocol(selectedSlot);
+  };
+
+  const triggerMobileFire = () => {
+    const s = simRef.current;
+    const alive = s.nodes.filter((n) => n.respawnTimer <= 0);
+    if (!s.lockedNodeId && alive.length > 0) {
+      let nearest = alive[0];
+      let best = Math.hypot(nearest.x - s.pointerX, nearest.y - s.pointerY);
+      for (const n of alive) {
+        const d = Math.hypot(n.x - s.pointerX, n.y - s.pointerY);
+        if (d < best) {
+          best = d;
+          nearest = n;
+        }
+      }
+      s.pointerX = nearest.x;
+      s.pointerY = nearest.y;
+      s.lockedNodeId = nearest.id;
+    }
     executeProtocol(selectedSlot);
   };
 
@@ -1454,6 +1489,45 @@ export function InterfaceStudio({ mode, onModeChange }: InterfaceStudioProps) {
               <strong>
                 [{activeSlotInfo.key}] {activeSlotInfo.name} — {activeSlotInfo.desc}
               </strong>
+            </div>
+          </div>
+
+          {/* Mobile-Exclusive Touch Game Pad */}
+          <div className="mobile-hud-deck" aria-label="Touch HUD Controls">
+            <div className="mobile-hud-deck__top">
+              <div className="mobile-hud-deck__active">
+                <span className="mobile-hud-deck__code">[{activeSlotInfo.key}] {activeSlotInfo.code}</span>
+                <strong>{activeSlotInfo.name}</strong>
+              </div>
+              <button
+                type="button"
+                className="mobile-hud-fire-btn"
+                onClick={triggerMobileFire}
+              >
+                <span>◎</span>
+                <span>{selectedSlot <= 1 ? 'FIRE / LOCK' : 'ACTIVATE'}</span>
+              </button>
+            </div>
+
+            <div className="mobile-hud-slots">
+              {t.design.studio.hud.slots.map((slot, idx) => (
+                <button
+                  key={slot.key}
+                  type="button"
+                  className={`mobile-hud-slot ${selectedSlot === idx ? 'is-active' : ''}`}
+                  onClick={() => {
+                    setSelectedSlot(idx);
+                    simRef.current.lastActionTime = performance.now();
+                    if (idx >= 2) {
+                      executeProtocol(idx);
+                    }
+                  }}
+                >
+                  <span className="mobile-hud-slot__key">{slot.key}</span>
+                  <span className="mobile-hud-slot__name">{slot.name}</span>
+                  <span className="mobile-hud-slot__role">{slot.role}</span>
+                </button>
+              ))}
             </div>
           </div>
 

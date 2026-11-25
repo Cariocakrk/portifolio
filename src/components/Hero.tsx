@@ -1,7 +1,11 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { PROFILE_CONFIG } from '../config/profile';
 import { useLanguage } from '../i18n/LanguageContext';
-import { HeroMeshCanvas, type MeshSimMode, type MeshTelemetry } from './HeroMeshCanvas';
+import type { MeshSimMode, MeshTelemetry } from './HeroMeshCanvas';
+
+const HeroMeshCanvas = lazy(() =>
+  import('./HeroMeshCanvas').then((mod) => ({ default: mod.HeroMeshCanvas }))
+);
 
 export function Hero() {
   const { t } = useLanguage();
@@ -95,11 +99,13 @@ export function Hero() {
             </div>
 
             <div className="mesh-viewport__stage">
-              <HeroMeshCanvas
-                mode={simMode}
-                pulseCount={pulseCount}
-                onTelemetry={setTelemetry}
-              />
+              <Suspense fallback={<div className="mesh-viewport__fallback" aria-hidden="true" />}>
+                <HeroMeshCanvas
+                  mode={simMode}
+                  pulseCount={pulseCount}
+                  onTelemetry={setTelemetry}
+                />
+              </Suspense>
               <div className="mesh-viewport__coords" aria-hidden="true">
                 <span>{telemetry.fps} FPS</span>
                 <span>{telemetry.vertices} VTX</span>

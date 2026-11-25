@@ -1,17 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { PROFILE_CONFIG } from '../config/profile';
 import { useLanguage } from '../i18n/LanguageContext';
 import type { Language } from '../i18n/types';
+import { LanguageFlag } from './LanguageFlag';
 
 interface NavbarProps {
   activeSection: string;
   onOpenPalette: () => void;
 }
 
-const LANGUAGES: { code: Language; label: string }[] = [
-  { code: 'pt', label: 'PT' },
-  { code: 'en', label: 'EN' },
-  { code: 'es', label: 'ES' },
+const LANGUAGES: { code: Language; label: string; name: string }[] = [
+  { code: 'en', label: 'EN', name: 'English' },
+  { code: 'pt', label: 'PT', name: 'Português' },
+  { code: 'es', label: 'ES', name: 'Español' },
 ];
 
 function formatClock(): string {
@@ -33,7 +34,7 @@ export function Navbar({ activeSection, onOpenPalette }: NavbarProps) {
   const { language, setLanguage, t } = useLanguage();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const progressBarRef = useRef<HTMLDivElement | null>(null);
   const [clock, setClock] = useState(formatClock);
 
   const navItems = [
@@ -47,15 +48,26 @@ export function Navbar({ activeSection, onOpenPalette }: NavbarProps) {
   ];
 
   useEffect(() => {
-    const onScroll = () => {
+    let raf = 0;
+    const updateScroll = () => {
+      raf = 0;
       const y = window.scrollY;
       setScrolled(y > 20);
       const max = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(max > 0 ? Math.min(100, (y / max) * 100) : 0);
+      const ratio = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
+      if (progressBarRef.current) {
+        progressBarRef.current.style.transform = `scaleX(${ratio})`;
+      }
     };
-    onScroll();
+    const onScroll = () => {
+      if (!raf) raf = window.requestAnimationFrame(updateScroll);
+    };
+    updateScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (raf) window.cancelAnimationFrame(raf);
+    };
   }, []);
 
   useEffect(() => {
@@ -113,8 +125,10 @@ export function Navbar({ activeSection, onOpenPalette }: NavbarProps) {
                 className={`lang-bar__btn ${language === item.code ? 'is-active' : ''}`}
                 onClick={() => setLanguage(item.code)}
                 aria-pressed={language === item.code}
+                title={item.name}
               >
-                {item.label}
+                <LanguageFlag lang={item.code} />
+                <span>{item.label}</span>
               </button>
             ))}
           </div>
@@ -133,16 +147,17 @@ export function Navbar({ activeSection, onOpenPalette }: NavbarProps) {
       </div>
 
       <div className="site-nav__progress" aria-hidden="true">
-        <div className="site-nav__progress-bar" style={{ width: `${progress}%` }} />
+        <div ref={progressBarRef} className="site-nav__progress-bar" />
       </div>
 
       {mobileOpen && (
         <div className="mobile-drawer" role="dialog" aria-label="Menu">
           <div className="wrap mobile-drawer__list">
-            {navItems.map((item) => (
+            {navItems.map((item, idx) => (
               <a
                 key={item.id}
                 href={`#${item.id}`}
+                style={{ '--stagger-idx': idx } as CSSProperties}
                 className={`mobile-drawer__link ${activeSection === item.id ? 'is-active' : ''}`}
                 onClick={() => setMobileOpen(false)}
               >
@@ -150,6 +165,23 @@ export function Navbar({ activeSection, onOpenPalette }: NavbarProps) {
                 <span>{item.label}</span>
               </a>
             ))}
+
+            <div className="mobile-drawer__langs" role="group" aria-label={t.nav.languageLabel}>
+              {LANGUAGES.map((item) => (
+                <button
+                  key={item.code}
+                  type="button"
+                  className={`mobile-drawer__lang-btn ${language === item.code ? 'is-active' : ''}`}
+                  onClick={() => {
+                    setLanguage(item.code);
+                    setMobileOpen(false);
+                  }}
+                >
+                  <LanguageFlag lang={item.code} />
+                  <span>{item.name}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}

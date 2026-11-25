@@ -4,7 +4,7 @@ import { es } from './es';
 import { pt } from './pt';
 import type { Language, PortfolioTranslation } from './types';
 
-const TRANSLATIONS: Record<Language, PortfolioTranslation> = { pt, en, es };
+const TRANSLATIONS: Record<Language, PortfolioTranslation> = { en, pt, es };
 const STORAGE_KEY = 'portfolio-language-v1';
 
 function isLanguage(value: string | null | undefined): value is Language {
@@ -12,7 +12,7 @@ function isLanguage(value: string | null | undefined): value is Language {
 }
 
 function detectInitialLanguage(): Language {
-  if (typeof window === 'undefined') return 'pt';
+  if (typeof window === 'undefined') return 'en';
 
   const params = new URLSearchParams(window.location.search);
   const urlLang = params.get('lang')?.toLowerCase();
@@ -25,10 +25,7 @@ function detectInitialLanguage(): Language {
     // Ignore storage access errors
   }
 
-  const browserLang = navigator.language.toLowerCase();
-  if (browserLang.startsWith('es')) return 'es';
-  if (browserLang.startsWith('en')) return 'en';
-  return 'pt';
+  return 'en';
 }
 
 interface LanguageContextValue {

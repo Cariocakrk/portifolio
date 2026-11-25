@@ -1,14 +1,15 @@
 import { PROFILE_CONFIG } from '../config/profile';
 import { useLanguage } from '../i18n/LanguageContext';
 import type { Language } from '../i18n/types';
+import { LanguageFlag } from './LanguageFlag';
 
 interface FooterProps {
   onOpenPalette: () => void;
 }
 
 const LANGS: { code: Language; label: string }[] = [
-  { code: 'pt', label: 'Português' },
   { code: 'en', label: 'English' },
+  { code: 'pt', label: 'Português' },
   { code: 'es', label: 'Español' },
 ];
 
@@ -38,7 +39,8 @@ export function Footer({ onOpenPalette }: FooterProps) {
                 className={`site-footer__lang ${language === item.code ? 'is-active' : ''}`}
                 onClick={() => setLanguage(item.code)}
               >
-                {item.label}
+                <LanguageFlag lang={item.code} />
+                <span>{item.label}</span>
               </button>
             ))}
           </div>

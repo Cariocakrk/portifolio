@@ -121,9 +121,9 @@ export function CommandPalette({
     ];
 
     const langs: { code: Language; label: string }[] = [
-      { code: 'pt', label: 'Português (PT)' },
-      { code: 'en', label: 'English (EN)' },
-      { code: 'es', label: 'Español (ES)' },
+      { code: 'en', label: '🇺🇸 English (EN)' },
+      { code: 'pt', label: '🇧🇷 Português (PT)' },
+      { code: 'es', label: '🇪🇸 Español (ES)' },
     ];
 
     langs.forEach((item) => {

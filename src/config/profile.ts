@@ -3,15 +3,15 @@
  * Update these fields with your personal handles and links at any time.
  */
 export const PROFILE_CONFIG = {
-  brandMark: 'PORTFÓLIO',
+  brandMark: 'Henzo Marques',
   brandCode: 'ENG · UI/UX · OPS',
   editionCode: 'ED. 2026 // SYS-03',
   timezone: 'America/Sao_Paulo',
   locationCode: 'BR · UTC−03',
   availabilityStatus: true,
   contact: {
-    email: 'contato@seuportfolio.dev',
-    discord: 'seu.usuario',
+    email: 'henzomqss@gmail.com',
+    discord: 'carioca._krl',
     githubUrl: 'https://github.com/',
     linkedinUrl: 'https://linkedin.com/',
   },

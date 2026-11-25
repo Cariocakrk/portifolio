@@ -11,6 +11,7 @@ import { DevelopmentSection } from './components/DevelopmentSection';
 import { Footer } from './components/Footer';
 import { Hero } from './components/Hero';
 import type { DesignStudioMode } from './components/InterfaceStudio';
+import { MobileChapterDock } from './components/MobileChapterDock';
 import { Navbar } from './components/Navbar';
 import { PrecisionReticle } from './components/PrecisionReticle';
 import type { EngineeringLabTab } from './components/SystemsSandbox';
@@ -85,6 +86,7 @@ function PortfolioShell() {
       </main>
 
       <Footer onOpenPalette={() => setPaletteOpen(true)} />
+      <MobileChapterDock activeSection={activeSection} />
 
       <CommandPalette
         open={paletteOpen}

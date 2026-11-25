@@ -59,7 +59,8 @@ export function HeroMeshCanvas({ mode, pulseCount, onTelemetry }: HeroMeshCanvas
 
     const width = Math.max(host.clientWidth, 1);
     const height = Math.max(host.clientHeight, 1);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isCoarsePointer ? 1.5 : 2));
     renderer.setSize(width, height);
     host.appendChild(renderer.domElement);
 
@@ -174,9 +175,17 @@ export function HeroMeshCanvas({ mode, pulseCount, onTelemetry }: HeroMeshCanvas
     let frameId = 0;
     let frames = 0;
     let lastFpsSample = performance.now();
+    let isInViewport = true;
+    let isTabVisible = !document.hidden;
     const startSec = performance.now() / 1000;
 
+    const shouldAnimate = () => isInViewport && isTabVisible;
+
     const tick = () => {
+      if (!shouldAnimate()) {
+        frameId = 0;
+        return;
+      }
       frameId = window.requestAnimationFrame(tick);
       const nowMs = performance.now();
       const nowSec = nowMs / 1000;
@@ -290,10 +299,38 @@ export function HeroMeshCanvas({ mode, pulseCount, onTelemetry }: HeroMeshCanvas
       }
     };
 
+    const resumeIfNeeded = () => {
+      if (shouldAnimate() && frameId === 0) {
+        frames = 0;
+        lastFpsSample = performance.now();
+        tick();
+      }
+    };
+
+    const onVisibilityChange = () => {
+      isTabVisible = !document.hidden;
+      resumeIfNeeded();
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    let viewportObserver: IntersectionObserver | null = null;
+    if ('IntersectionObserver' in window) {
+      viewportObserver = new IntersectionObserver(
+        (entries) => {
+          isInViewport = entries[0]?.isIntersecting ?? true;
+          resumeIfNeeded();
+        },
+        { threshold: 0.01 }
+      );
+      viewportObserver.observe(host);
+    }
+
     tick();
 
     return () => {
-      window.cancelAnimationFrame(frameId);
+      if (frameId) window.cancelAnimationFrame(frameId);
+      viewportObserver?.disconnect();
+      document.removeEventListener('visibilitychange', onVisibilityChange);
       host.removeEventListener('pointermove', onPointerMove);
       host.removeEventListener('pointerdown', onPointerDown);
       host.removeEventListener('pointerleave', onPointerLeave);

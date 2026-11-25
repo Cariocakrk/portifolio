@@ -7,6 +7,7 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: var(--nav-h);
+  overflow-x: clip;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -24,7 +25,7 @@ body {
   line-height: 1.62;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 ::selection {
@@ -148,13 +149,221 @@ button {
 
 .band > .wrap {
   opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 540ms var(--ease-editorial), transform 540ms var(--ease-editorial);
+  transform: translateY(20px) scale(0.992);
+  transition: opacity 580ms var(--ease-editorial), transform 580ms var(--ease-editorial);
 }
 
 .band[data-revealed='true'] > .wrap {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
+}
+
+.band[data-revealed='true'] .pillar-ledger__item,
+.band[data-revealed='true'] .areas-card,
+.band[data-revealed='true'] .ops-ledger-card,
+.band[data-revealed='true'] .contact-row {
+  animation: cardStaggerIn 520ms var(--ease-editorial) both;
+}
+
+.band[data-revealed='true'] .pillar-ledger__item:nth-child(2),
+.band[data-revealed='true'] .areas-card:nth-child(2),
+.band[data-revealed='true'] .ops-ledger-card:nth-child(2),
+.band[data-revealed='true'] .contact-row:nth-child(2) {
+  animation-delay: 80ms;
+}
+
+.band[data-revealed='true'] .pillar-ledger__item:nth-child(3),
+.band[data-revealed='true'] .areas-card:nth-child(3),
+.band[data-revealed='true'] .ops-ledger-card:nth-child(3) {
+  animation-delay: 160ms;
+}
+
+@keyframes cardStaggerIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 760px) {
+  .band > .wrap {
+    opacity: 0;
+    transform: translateY(28px) scale(0.975);
+    filter: blur(4px);
+    transition: opacity 640ms var(--ease-editorial), transform 640ms var(--ease-editorial),
+      filter 540ms var(--ease-editorial);
+  }
+
+  .band[data-revealed='true'] > .wrap {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+
+  .band[data-revealed='true'] .display-h2,
+  .band[data-revealed='true'] .editorial-statement,
+  .band[data-revealed='true'] .contact-display {
+    animation: mobileHeadingReveal 620ms var(--ease-editorial) 60ms both;
+  }
+
+  .band[data-revealed='true'] .chapter-tag {
+    animation: mobileTagSlide 520ms var(--ease-editorial) both;
+  }
+
+  .band[data-revealed='true'] .tech-row,
+  .band[data-revealed='true'] .acc-row {
+    animation: cardStaggerIn 480ms var(--ease-editorial) both;
+  }
+
+  .band[data-revealed='true'] .tech-row:nth-child(2),
+  .band[data-revealed='true'] .acc-row:nth-child(2) {
+    animation-delay: 55ms;
+  }
+
+  .band[data-revealed='true'] .tech-row:nth-child(3),
+  .band[data-revealed='true'] .acc-row:nth-child(3) {
+    animation-delay: 110ms;
+  }
+
+  .band[data-revealed='true'] .tech-row:nth-child(4),
+  .band[data-revealed='true'] .acc-row:nth-child(4) {
+    animation-delay: 165ms;
+  }
+}
+
+@keyframes mobileHeadingReveal {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes mobileTagSlide {
+  from {
+    opacity: 0;
+    transform: translateX(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Floating Mobile Chapter Dock */
+.mobile-dock {
+  display: none;
+}
+
+@media (max-width: 1180px) {
+  .mobile-dock {
+    position: fixed;
+    left: 50%;
+    bottom: max(14px, env(safe-area-inset-bottom));
+    transform: translate(-50%, 120%);
+    z-index: 65;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: min(calc(100vw - 28px), 400px);
+    padding: 8px 10px 8px 14px;
+    border-radius: 999px;
+    background: rgba(17, 19, 23, 0.88);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(244, 242, 236, 0.16);
+    box-shadow: 0 14px 36px rgba(12, 14, 18, 0.34);
+    color: #f4f2ec;
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 360ms var(--ease-editorial), opacity 260ms ease;
+  }
+
+  .mobile-dock.is-visible {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .mobile-dock__info {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .mobile-dock__num {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--vermilion);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .mobile-dock__label {
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mobile-dock__track {
+    width: 48px;
+    height: 3px;
+    border-radius: 999px;
+    background: rgba(244, 242, 236, 0.16);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .mobile-dock__fill {
+    width: 100%;
+    height: 100%;
+    background: var(--vermilion);
+    transform: scaleX(0);
+    transform-origin: left center;
+    will-change: transform;
+  }
+
+  .mobile-dock__pct {
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    color: rgba(244, 242, 236, 0.66);
+    font-variant-numeric: tabular-nums;
+    width: 30px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .mobile-dock__top {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: rgba(244, 242, 236, 0.12);
+    color: #f4f2ec;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    transition: background-color 140ms ease, transform 110ms ease;
+  }
+
+  .mobile-dock__top:active {
+    transform: scale(0.9);
+    background: var(--vermilion);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -162,6 +371,13 @@ button {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+
+  .band[data-revealed='true'] .pillar-ledger__item,
+  .band[data-revealed='true'] .areas-card,
+  .band[data-revealed='true'] .ops-ledger-card,
+  .band[data-revealed='true'] .contact-row {
+    animation: none;
   }
 }
 
