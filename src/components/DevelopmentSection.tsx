@@ -1,8 +1,14 @@
 import { useMemo, useState } from 'react';
 import { CODE_SNIPPETS, tokenizeCode } from '../data/codeSnippets';
 import { useLanguage } from '../i18n/LanguageContext';
+import { SystemsSandbox, type EngineeringLabTab } from './SystemsSandbox';
 
-export function DevelopmentSection() {
+interface DevelopmentSectionProps {
+  activeLab: EngineeringLabTab;
+  onSelectLab: (lab: EngineeringLabTab) => void;
+}
+
+export function DevelopmentSection({ activeLab, onSelectLab }: DevelopmentSectionProps) {
   const { t } = useLanguage();
   const [selectedTech, setSelectedTech] = useState<string>(t.development.techStack[0]?.name ?? 'React');
   const [copied, setCopied] = useState(false);
@@ -24,7 +30,7 @@ export function DevelopmentSection() {
   };
 
   return (
-    <section id="development" className="band band--ink">
+    <section id="development" className="band" data-theme="ink">
       <div className="wrap">
         <div className="chapter-head">
           <div className="chapter-head__left">
@@ -38,6 +44,8 @@ export function DevelopmentSection() {
             <span className="chapter-metric__label">{t.development.yearsLabel}</span>
           </div>
         </div>
+
+        <SystemsSandbox activeLab={activeLab} onSelectLab={onSelectLab} />
 
         <div className="dev-workbench">
           <div className="dev-workbench__list">
@@ -62,7 +70,10 @@ export function DevelopmentSection() {
                     }}
                   >
                     <span className="tech-selector-row__num">{String(idx + 1).padStart(2, '0')}</span>
-                    <strong className="tech-selector-row__name">{tech.name}</strong>
+                    <div className="tech-selector-row__main">
+                      <strong className="tech-selector-row__name">{tech.name}</strong>
+                      <span className="tech-selector-row__layer">{tech.layer}</span>
+                    </div>
                     <span className="tech-selector-row__cat">{tech.category}</span>
                     <span className="tech-selector-row__arrow" aria-hidden="true">
                       {isSelected ? '●' : '→'}
@@ -78,6 +89,7 @@ export function DevelopmentSection() {
               <div className="code-panel__meta">
                 <span className="code-panel__file">{snippet.fileName}</span>
                 <span className="code-panel__lang">{snippet.languageLabel}</span>
+                <span className="code-panel__complexity">{snippet.complexityTag}</span>
               </div>
               <button type="button" className="code-panel__copy" onClick={handleCopyCode}>
                 {copied ? `${t.development.copiedCode} ✓` : t.development.copyCode}
@@ -95,11 +107,13 @@ export function DevelopmentSection() {
                           {String(idx + 1).padStart(2, '0')}
                         </span>
                         <span className="code-line__text">
-                          {tokens.length === 0 ? ' ' : tokens.map((tok, tIdx) => (
-                            <span key={tIdx} className={`tok tok--${tok.type}`}>
-                              {tok.value}
-                            </span>
-                          ))}
+                          {tokens.length === 0
+                            ? ' '
+                            : tokens.map((tok, tIdx) => (
+                                <span key={tIdx} className={`tok tok--${tok.type}`}>
+                                  {tok.value}
+                                </span>
+                              ))}
                         </span>
                       </div>
                     );
@@ -109,8 +123,17 @@ export function DevelopmentSection() {
             </div>
 
             <div className="code-panel__footer">
-              <span className="mono-meta">{t.development.codeHeaderLabel}</span>
-              <span className="code-panel__focus">{activeTechObj?.focus}</span>
+              <div className="code-panel__footer-top">
+                <span className="mono-meta">{t.development.codeHeaderLabel}</span>
+                {activeTechObj && (
+                  <a href={activeTechObj.liveAnchor} className="code-panel__proof-link">
+                    <span>●</span>
+                    <span>{activeTechObj.liveProof}</span>
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                )}
+              </div>
+              <span className="code-panel__focus">{activeTechObj?.architectureNote}</span>
             </div>
           </div>
         </div>

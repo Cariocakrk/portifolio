@@ -17,13 +17,13 @@ export function ContactSection() {
   };
 
   return (
-    <section id="contact" className="band band--carbon band--contact">
+    <section id="contact" className="band band--contact" data-theme="carbon">
       <div className="wrap">
         <span className="chapter-tag">{t.contact.index}</span>
 
         <h2 className="contact-display">
           {t.contact.headlineStart}
-          <em className="serif-italic serif-italic--lime">{t.contact.headlineItalic}</em>
+          <em className="serif-italic serif-italic--vermilion">{t.contact.headlineItalic}</em>
           {t.contact.headlineEnd}
         </h2>
 
@@ -45,32 +45,38 @@ export function ContactSection() {
             </div>
           </div>
 
-          <div className="contact-rows">
-            <button
-              type="button"
-              className="contact-row"
-              onClick={() => handleCopy('email', PROFILE_CONFIG.contact.email)}
-            >
-              <span className="contact-row__label">{t.contact.emailLabel}</span>
-              <strong className="contact-row__value">{PROFILE_CONFIG.contact.email}</strong>
-              <span className="contact-row__action">
-                {copiedField === 'email' ? `${t.contact.copiedLabel} ✓` : `${t.contact.copyLabel} ↗`}
-              </span>
-            </button>
+          <div className="contact-right">
+            <div className="contact-rows">
+              <button
+                type="button"
+                className="contact-row"
+                onClick={() => handleCopy('email', PROFILE_CONFIG.contact.email)}
+              >
+                <span className="contact-row__label">{t.contact.emailLabel}</span>
+                <strong className="contact-row__value">{PROFILE_CONFIG.contact.email}</strong>
+                <span className="contact-row__action">
+                  {copiedField === 'email' ? `${t.contact.copiedLabel} ✓` : `${t.contact.copyLabel} ↗`}
+                </span>
+              </button>
 
-            <button
-              type="button"
-              className="contact-row"
-              onClick={() => handleCopy('discord', PROFILE_CONFIG.contact.discord)}
-            >
-              <span className="contact-row__label">{t.contact.discordLabel}</span>
-              <strong className="contact-row__value">{PROFILE_CONFIG.contact.discord}</strong>
-              <span className="contact-row__action">
-                {copiedField === 'discord' ? `${t.contact.copiedLabel} ✓` : `${t.contact.copyLabel} ↗`}
-              </span>
-            </button>
+              <button
+                type="button"
+                className="contact-row"
+                onClick={() => handleCopy('discord', PROFILE_CONFIG.contact.discord)}
+              >
+                <span className="contact-row__label">{t.contact.discordLabel}</span>
+                <strong className="contact-row__value">{PROFILE_CONFIG.contact.discord}</strong>
+                <span className="contact-row__action">
+                  {copiedField === 'discord' ? `${t.contact.copiedLabel} ✓` : `${t.contact.copyLabel} ↗`}
+                </span>
+              </button>
+            </div>
 
-            <p className="contact-config-note">{t.contact.configNote}</p>
+            <div className="contact-arch-card">
+              <span className="mono-meta">{t.contact.architectureSummaryLabel}</span>
+              <p>{t.contact.architectureSummary}</p>
+              <span className="contact-config-note">{t.contact.configNote}</span>
+            </div>
           </div>
         </div>
       </div>

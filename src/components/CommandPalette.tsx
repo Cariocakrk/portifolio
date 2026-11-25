@@ -1,10 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { PROFILE_CONFIG } from '../config/profile';
 import { useLanguage } from '../i18n/LanguageContext';
 import type { Language } from '../i18n/types';
+import type { DesignStudioMode } from './InterfaceStudio';
+import type { EngineeringLabTab } from './SystemsSandbox';
 
 interface CommandPaletteProps {
   open: boolean;
   onClose: () => void;
+  onSelectLab: (lab: EngineeringLabTab) => void;
+  onSelectStudioMode: (mode: DesignStudioMode) => void;
 }
 
 interface CommandItem {
@@ -23,7 +28,12 @@ function normalize(value: string): string {
     .trim();
 }
 
-export function CommandPalette({ open, onClose }: CommandPaletteProps) {
+export function CommandPalette({
+  open,
+  onClose,
+  onSelectLab,
+  onSelectStudioMode,
+}: CommandPaletteProps) {
   const { language, setLanguage, t } = useLanguage();
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -37,15 +47,77 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
     }
   };
 
+  const copyQuick = (value: string) => {
+    navigator.clipboard?.writeText(value).catch(() => {});
+    onClose();
+  };
+
   const allCommands = useMemo<CommandItem[]>(() => {
     const list: CommandItem[] = [
-      { id: 'sec-about', group: t.palette.sectionsGroup, label: t.nav.about, meta: '#about', action: () => jumpTo('about') },
-      { id: 'sec-dev', group: t.palette.sectionsGroup, label: t.nav.development, meta: '#development', action: () => jumpTo('development') },
-      { id: 'sec-design', group: t.palette.sectionsGroup, label: t.nav.design, meta: '#design', action: () => jumpTo('design') },
-      { id: 'sec-comm', group: t.palette.sectionsGroup, label: t.nav.community, meta: '#community', action: () => jumpTo('community') },
-      { id: 'sec-areas', group: t.palette.sectionsGroup, label: t.nav.areas, meta: '#areas', action: () => jumpTo('areas') },
-      { id: 'sec-exp', group: t.palette.sectionsGroup, label: t.nav.explorer, meta: '#explorer', action: () => jumpTo('explorer') },
-      { id: 'sec-contact', group: t.palette.sectionsGroup, label: t.nav.contact, meta: '#contact', action: () => jumpTo('contact') },
+      // Interactive Labs first for immediate wow
+      {
+        id: 'lab-raid',
+        group: t.palette.labsGroup,
+        label: t.palette.openRaidSim,
+        meta: 'NODE.JS LAB',
+        action: () => {
+          onSelectLab('raid');
+          jumpTo('development');
+        },
+      },
+      {
+        id: 'lab-physics',
+        group: t.palette.labsGroup,
+        label: t.palette.openPhysicsLab,
+        meta: 'C++ / Δt LAB',
+        action: () => {
+          onSelectLab('physics');
+          jumpTo('development');
+        },
+      },
+      {
+        id: 'lab-hud',
+        group: t.palette.labsGroup,
+        label: t.palette.openGameHud,
+        meta: 'GAME UI',
+        action: () => {
+          onSelectStudioMode('hud');
+          jumpTo('design');
+        },
+      },
+      {
+        id: 'lab-ds',
+        group: t.palette.labsGroup,
+        label: t.palette.openDesignTokens,
+        meta: 'WEB UI',
+        action: () => {
+          onSelectStudioMode('web');
+          jumpTo('design');
+        },
+      },
+      // Sections
+      { id: 'sec-about', group: t.palette.sectionsGroup, label: `01 · ${t.nav.about}`, meta: '#about', action: () => jumpTo('about') },
+      { id: 'sec-dev', group: t.palette.sectionsGroup, label: `02 · ${t.nav.development}`, meta: '#development', action: () => jumpTo('development') },
+      { id: 'sec-design', group: t.palette.sectionsGroup, label: `03 · ${t.nav.design}`, meta: '#design', action: () => jumpTo('design') },
+      { id: 'sec-comm', group: t.palette.sectionsGroup, label: `04 · ${t.nav.community}`, meta: '#community', action: () => jumpTo('community') },
+      { id: 'sec-areas', group: t.palette.sectionsGroup, label: `05 · ${t.nav.areas}`, meta: '#areas', action: () => jumpTo('areas') },
+      { id: 'sec-exp', group: t.palette.sectionsGroup, label: `06 · ${t.nav.explorer}`, meta: '#explorer', action: () => jumpTo('explorer') },
+      { id: 'sec-contact', group: t.palette.sectionsGroup, label: `07 · ${t.nav.contact}`, meta: '#contact', action: () => jumpTo('contact') },
+      // Quick actions
+      {
+        id: 'act-email',
+        group: t.palette.actionsGroup,
+        label: `${t.palette.copyEmailAction} (${PROFILE_CONFIG.contact.email})`,
+        meta: 'COPY',
+        action: () => copyQuick(PROFILE_CONFIG.contact.email),
+      },
+      {
+        id: 'act-discord',
+        group: t.palette.actionsGroup,
+        label: `${t.palette.copyDiscordAction} (${PROFILE_CONFIG.contact.discord})`,
+        meta: 'COPY',
+        action: () => copyQuick(PROFILE_CONFIG.contact.discord),
+      },
     ];
 
     const langs: { code: Language; label: string }[] = [
@@ -98,14 +170,14 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
     });
 
     return list;
-  }, [language, setLanguage, t]);
+  }, [language, onClose, onSelectLab, onSelectStudioMode, setLanguage, t]);
 
   const filtered = useMemo(() => {
     const q = normalize(query);
-    if (!q) return allCommands.slice(0, 14);
+    if (!q) return allCommands.slice(0, 16);
     return allCommands
       .filter((cmd) => normalize(`${cmd.group} ${cmd.label} ${cmd.meta}`).includes(q))
-      .slice(0, 18);
+      .slice(0, 20);
   }, [allCommands, query]);
 
   useEffect(() => {
@@ -143,7 +215,13 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   if (!open) return null;
 
   return (
-    <div className="palette-backdrop" role="dialog" aria-modal="true" aria-label="Quick navigation" onClick={onClose}>
+    <div
+      className="palette-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Quick navigation"
+      onClick={onClose}
+    >
       <div className="palette-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="palette-input-row">
           <span className="palette-prompt" aria-hidden="true">

@@ -1,12 +1,22 @@
 import { useState } from 'react';
 import { useLanguage } from '../i18n/LanguageContext';
+import { InterfaceStudio, type DesignStudioMode } from './InterfaceStudio';
 
-export function DesignSection() {
+interface DesignSectionProps {
+  studioMode: DesignStudioMode;
+  onStudioModeChange: (mode: DesignStudioMode) => void;
+}
+
+export function DesignSection({ studioMode, onStudioModeChange }: DesignSectionProps) {
   const { t } = useLanguage();
   const [showGrid, setShowGrid] = useState(false);
 
   return (
-    <section id="design" className={`band band--paper design-band ${showGrid ? 'is-grid-visible' : ''}`}>
+    <section
+      id="design"
+      data-theme="paper"
+      className={`band design-band ${showGrid ? 'is-grid-visible' : ''}`}
+    >
       {showGrid && (
         <div className="live-grid-overlay" aria-hidden="true">
           <div className="wrap live-grid-overlay__cols">
@@ -44,19 +54,19 @@ export function DesignSection() {
           </div>
         </div>
 
+        <InterfaceStudio mode={studioMode} onModeChange={onStudioModeChange} />
+
         <div className="design-editorial-split">
           <div className="design-editorial-split__left">
             <p className="copy-lg">{t.design.intro}</p>
 
             <div className="design-duet">
               <article className="design-duet__block">
-                <span className="mono-index">01 / WEB</span>
                 <h3>{t.design.focusSplit.webTitle}</h3>
                 <p>{t.design.focusSplit.webDesc}</p>
               </article>
 
               <article className="design-duet__block">
-                <span className="mono-index">02 / GAMES</span>
                 <h3>{t.design.focusSplit.gamesTitle}</h3>
                 <p>{t.design.focusSplit.gamesDesc}</p>
               </article>

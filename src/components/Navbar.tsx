@@ -14,26 +14,53 @@ const LANGUAGES: { code: Language; label: string }[] = [
   { code: 'es', label: 'ES' },
 ];
 
+function formatClock(): string {
+  try {
+    return new Intl.DateTimeFormat('pt-BR', {
+      timeZone: PROFILE_CONFIG.timezone,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    }).format(new Date());
+  } catch {
+    const d = new Date();
+    return d.toTimeString().slice(0, 8);
+  }
+}
+
 export function Navbar({ activeSection, onOpenPalette }: NavbarProps) {
   const { language, setLanguage, t } = useLanguage();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [clock, setClock] = useState(formatClock);
 
   const navItems = [
-    { id: 'about', label: t.nav.about },
-    { id: 'development', label: t.nav.development },
-    { id: 'design', label: t.nav.design },
-    { id: 'community', label: t.nav.community },
-    { id: 'areas', label: t.nav.areas },
-    { id: 'explorer', label: t.nav.explorer },
-    { id: 'contact', label: t.nav.contact },
+    { id: 'about', num: '01', label: t.nav.about },
+    { id: 'development', num: '02', label: t.nav.development },
+    { id: 'design', num: '03', label: t.nav.design },
+    { id: 'community', num: '04', label: t.nav.community },
+    { id: 'areas', num: '05', label: t.nav.areas },
+    { id: 'explorer', num: '06', label: t.nav.explorer },
+    { id: 'contact', num: '07', label: t.nav.contact },
   ];
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 20);
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(max > 0 ? Math.min(100, (y / max) * 100) : 0);
+    };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    const id = window.setInterval(() => setClock(formatClock()), 1000);
+    return () => window.clearInterval(id);
   }, []);
 
   useEffect(() => {
@@ -61,12 +88,18 @@ export function Navbar({ activeSection, onOpenPalette }: NavbarProps) {
               href={`#${item.id}`}
               className={`site-nav__link ${activeSection === item.id ? 'is-active' : ''}`}
             >
-              {item.label}
+              <span className="site-nav__link-num">{item.num}</span>
+              <span>{item.label}</span>
             </a>
           ))}
         </nav>
 
         <div className="site-nav__right">
+          <div className="nav-telemetry" aria-hidden="true">
+            <span className="nav-telemetry__dot" />
+            <span>{clock}</span>
+          </div>
+
           <button type="button" className="cmd-trigger" onClick={onOpenPalette}>
             <span>{t.nav.commandBtn}</span>
             <kbd>Ctrl K</kbd>
@@ -99,17 +132,21 @@ export function Navbar({ activeSection, onOpenPalette }: NavbarProps) {
         </div>
       </div>
 
+      <div className="site-nav__progress" aria-hidden="true">
+        <div className="site-nav__progress-bar" style={{ width: `${progress}%` }} />
+      </div>
+
       {mobileOpen && (
         <div className="mobile-drawer" role="dialog" aria-label="Menu">
           <div className="wrap mobile-drawer__list">
-            {navItems.map((item, idx) => (
+            {navItems.map((item) => (
               <a
                 key={item.id}
                 href={`#${item.id}`}
                 className={`mobile-drawer__link ${activeSection === item.id ? 'is-active' : ''}`}
                 onClick={() => setMobileOpen(false)}
               >
-                <span className="mobile-drawer__num">0{idx + 1}</span>
+                <span className="mobile-drawer__num">{item.num}</span>
                 <span>{item.label}</span>
               </a>
             ))}

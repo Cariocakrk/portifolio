@@ -4,7 +4,10 @@
  */
 export const PROFILE_CONFIG = {
   brandMark: 'PORTFÓLIO',
-  brandCode: 'DEV · UI/UX · OPS',
+  brandCode: 'ENG · UI/UX · OPS',
+  editionCode: 'ED. 2026 // SYS-03',
+  timezone: 'America/Sao_Paulo',
+  locationCode: 'BR · UTC−03',
   availabilityStatus: true,
   contact: {
     email: 'contato@seuportfolio.dev',
@@ -16,5 +19,7 @@ export const PROFILE_CONFIG = {
     devYears: 3,
     designYears: 2,
     communityYears: 7,
+    communityDomains: 12,
+    coreTechnologies: 8,
   },
 } as const;

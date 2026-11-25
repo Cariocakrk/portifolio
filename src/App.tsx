@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AboutSection } from './components/AboutSection';
 import { AreasSection } from './components/AreasSection';
+import { ChapterRail } from './components/ChapterRail';
 import { CommandPalette } from './components/CommandPalette';
 import { CommunitySection } from './components/CommunitySection';
 import { CompetencyExplorer } from './components/CompetencyExplorer';
@@ -9,12 +10,17 @@ import { DesignSection } from './components/DesignSection';
 import { DevelopmentSection } from './components/DevelopmentSection';
 import { Footer } from './components/Footer';
 import { Hero } from './components/Hero';
+import type { DesignStudioMode } from './components/InterfaceStudio';
 import { Navbar } from './components/Navbar';
+import { PrecisionReticle } from './components/PrecisionReticle';
+import type { EngineeringLabTab } from './components/SystemsSandbox';
 import { useActiveSection } from './hooks/useActiveSection';
 import { LanguageProvider } from './i18n/LanguageContext';
 
 function PortfolioShell() {
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [activeLab, setActiveLab] = useState<EngineeringLabTab>('raid');
+  const [studioMode, setStudioMode] = useState<DesignStudioMode>('hud');
 
   const sectionIds = useMemo(
     () => ['top', 'about', 'development', 'design', 'community', 'areas', 'explorer', 'contact'],
@@ -39,7 +45,7 @@ function PortfolioShell() {
 
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReduced || !('IntersectionObserver' in window)) {
-      targets.forEach((el) => el.classList.add('is-revealed'));
+      targets.forEach((el) => el.setAttribute('data-revealed', 'true'));
       return;
     }
 
@@ -47,12 +53,12 @@ function PortfolioShell() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('is-revealed');
+            entry.target.setAttribute('data-revealed', 'true');
             observer.unobserve(entry.target);
           }
         });
       },
-      { threshold: 0.06, rootMargin: '0px 0px -30px 0px' }
+      { threshold: 0.01, rootMargin: '80px 0px -8px 0px' }
     );
 
     targets.forEach((el) => observer.observe(el));
@@ -61,19 +67,31 @@ function PortfolioShell() {
 
   return (
     <div className="page-root">
+      <div className="grain-layer" aria-hidden="true" />
+      <PrecisionReticle />
+      <ChapterRail activeSection={activeSection} />
+
       <Navbar activeSection={activeSection} onOpenPalette={() => setPaletteOpen(true)} />
+
       <main id="main-content">
         <Hero />
         <AboutSection />
-        <DevelopmentSection />
-        <DesignSection />
+        <DevelopmentSection activeLab={activeLab} onSelectLab={setActiveLab} />
+        <DesignSection studioMode={studioMode} onStudioModeChange={setStudioMode} />
         <CommunitySection />
         <AreasSection />
         <CompetencyExplorer />
         <ContactSection />
       </main>
+
       <Footer onOpenPalette={() => setPaletteOpen(true)} />
-      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        onSelectLab={setActiveLab}
+        onSelectStudioMode={setStudioMode}
+      />
     </div>
   );
 }

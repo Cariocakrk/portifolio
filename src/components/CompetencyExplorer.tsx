@@ -66,28 +66,34 @@ export function CompetencyExplorer() {
     return items;
   }, [t]);
 
+  const counts = useMemo(() => {
+    return {
+      all: allItems.length,
+      dev: allItems.filter((i) => i.pillar === 'dev').length,
+      design: allItems.filter((i) => i.pillar === 'design').length,
+      community: allItems.filter((i) => i.pillar === 'community').length,
+    };
+  }, [allItems]);
+
   const filteredItems = useMemo(() => {
-    const q = normalize(query);
+    const tokens = normalize(query).split(/\s+/).filter(Boolean);
     return allItems.filter((item) => {
       if (activePillar !== 'all' && item.pillar !== activePillar) return false;
-      if (!q) return true;
-      return (
-        normalize(item.label).includes(q) ||
-        normalize(item.group).includes(q) ||
-        normalize(t.explorer.pillarLabels[item.pillar]).includes(q)
-      );
+      if (tokens.length === 0) return true;
+      const hay = normalize(`${item.label} ${item.group} ${t.explorer.pillarLabels[item.pillar]}`);
+      return tokens.every((tok) => hay.includes(tok));
     });
   }, [allItems, activePillar, query, t.explorer.pillarLabels]);
 
-  const pillars: { id: PillarId | 'all'; label: string }[] = [
-    { id: 'all', label: t.explorer.allPillars },
-    { id: 'dev', label: t.explorer.pillarLabels.dev },
-    { id: 'design', label: t.explorer.pillarLabels.design },
-    { id: 'community', label: t.explorer.pillarLabels.community },
+  const pillars: { id: PillarId | 'all'; label: string; count: number }[] = [
+    { id: 'all', label: t.explorer.allPillars, count: counts.all },
+    { id: 'dev', label: t.explorer.pillarLabels.dev, count: counts.dev },
+    { id: 'design', label: t.explorer.pillarLabels.design, count: counts.design },
+    { id: 'community', label: t.explorer.pillarLabels.community, count: counts.community },
   ];
 
   return (
-    <section id="explorer" className="band band--paper">
+    <section id="explorer" className="band" data-theme="paper">
       <div className="wrap">
         <div className="chapter-head chapter-head--compact">
           <div className="chapter-head__left">
@@ -112,6 +118,7 @@ export function CompetencyExplorer() {
                 type="button"
                 className="underline-search__clear"
                 onClick={() => setQuery('')}
+                aria-label={t.explorer.clearFilters}
               >
                 ×
               </button>
@@ -128,9 +135,28 @@ export function CompetencyExplorer() {
                 className={`tab-line__btn ${activePillar === pillar.id ? 'is-active' : ''}`}
                 onClick={() => setActivePillar(pillar.id)}
               >
-                {pillar.label}
+                {pillar.label} ({pillar.count})
               </button>
             ))}
+          </div>
+        </div>
+
+        <div className="index-quick-row">
+          <span className="mono-meta">{t.explorer.quickTagsLabel}</span>
+          <div className="index-quick-tags">
+            {t.explorer.quickTags.map((tag) => {
+              const active = normalize(query) === normalize(tag);
+              return (
+                <button
+                  key={tag}
+                  type="button"
+                  className={`quick-tag-chip ${active ? 'is-active' : ''}`}
+                  onClick={() => setQuery(active ? '' : tag)}
+                >
+                  {tag}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -168,9 +194,12 @@ export function CompetencyExplorer() {
           </div>
         ) : (
           <div className="index-directory">
-            {filteredItems.map((item) => (
+            {filteredItems.map((item, idx) => (
               <div key={item.id} className="index-entry">
-                <span className="index-entry__group">{item.group}</span>
+                <div className="index-entry__head">
+                  <span className="index-entry__group">{item.group}</span>
+                  <span className="index-entry__num">{String(idx + 1).padStart(2, '0')}</span>
+                </div>
                 <span className="index-entry__label">{item.label}</span>
               </div>
             ))}

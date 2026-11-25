@@ -16,14 +16,17 @@ export function Footer({ onOpenPalette }: FooterProps) {
   const { language, setLanguage, t } = useLanguage();
 
   return (
-    <footer className="site-footer">
+    <footer className="site-footer" data-theme="ink">
       <div className="wrap site-footer__inner">
         <div className="site-footer__left">
-          <strong className="site-footer__brand">{PROFILE_CONFIG.brandMark}</strong>
-          <span className="site-footer__tagline">{t.footer.tagline}</span>
-          <button type="button" className="site-footer__hint" onClick={onOpenPalette}>
-            {t.footer.shortcutHint}
-          </button>
+          <div className="site-footer__brand-row">
+            <strong className="site-footer__brand">{PROFILE_CONFIG.brandMark}</strong>
+            <span className="site-footer__tagline">{t.footer.tagline}</span>
+            <button type="button" className="site-footer__hint" onClick={onOpenPalette}>
+              {t.footer.shortcutHint}
+            </button>
+          </div>
+          <span className="site-footer__colophon">{t.footer.colophon}</span>
         </div>
 
         <div className="site-footer__right">
