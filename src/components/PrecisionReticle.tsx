@@ -18,6 +18,7 @@ export function PrecisionReticle() {
     let curX = -100;
     let curY = -100;
     let visible = false;
+    let suppressed = false;
     let interactive = false;
     let pressed = false;
     let frameId = 0;
@@ -30,11 +31,16 @@ export function PrecisionReticle() {
         curX = targetX;
         curY = targetY;
         visible = true;
-        outer.style.opacity = '1';
-        dot.style.opacity = '1';
       }
 
       const el = e.target as HTMLElement | null;
+      const inCustomCanvas = Boolean(el?.closest('.diegetic-canvas'));
+      if (inCustomCanvas !== suppressed) {
+        suppressed = inCustomCanvas;
+      }
+      outer.style.opacity = suppressed ? '0' : '1';
+      dot.style.opacity = suppressed ? '0' : '1';
+
       const isHit = Boolean(
         el?.closest('a, button, input, [role="tab"], [role="option"], .mesh-viewport__canvas')
       );
